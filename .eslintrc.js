@@ -23,21 +23,22 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     // disallow space between function name and parentheses
-    'space-before-function-paren': [1, {
+    'space-before-function-paren': [2, {
       anonymous: "always",
       named: "never",
       asyncArrow: "always"
     }],
     // allow trailing commas for multiline lists (such as arrays and objects)
-    'comma-dangle': [1, "only-multiline"],
+    'comma-dangle': [2, "only-multiline"],
     // allow loop labels
     'no-labels': [2, {
       allowLoop: true
     }],
-    'padded-blocks': [1, {
+    // force padding for classes
+    'padded-blocks': [2, {
       blocks: "never",
       classes: "always",
       switches: "never"
-    }]
+    }],
   }
 }
