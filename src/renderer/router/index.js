@@ -8,14 +8,16 @@ export default new Router({
     {
       path: '/',
       component: require('@/components/MainLayout').default,
-      children: [{
-        path: '',
-        component: require('@/components/MainLayout/Home').default
-      },
-      {
-        path: ':pm',
-        component: require('@/components/MainLayout/PackageViewer').default
-      }]
+      children: [
+        {
+          path: '',
+          component: require('@/components/MainLayout/Home').default
+        },
+        {
+          path: ':pm',
+          component: require('@/components/MainLayout/PackageViewer').default
+        }
+      ]
     },
     {
       path: '*',
