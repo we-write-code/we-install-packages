@@ -1,7 +1,7 @@
 'use strict'
 
-import { app, BrowserWindow, Menu, dialog } from 'electron'
-import ProjectManager from './ProjectManager'
+import { app, BrowserWindow } from 'electron'
+import MenuStrip from './MenuStrip'
 
 /**
  * Set `__static` path to static files in production
@@ -11,70 +11,10 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
+export let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
-
-const template = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Open project...',
-        accelerator: 'CmdOrCtrl+O',
-        click() {
-          dialog.showOpenDialog(mainWindow, {
-            properties: ['openDirectory']
-          }, (filePaths) => {
-            ProjectManager.openDirectory(filePaths[0], mainWindow)
-          })
-        }
-      },
-      {
-        label: 'Recent Projects',
-        submenu: [
-          {
-            label: 'Hier ist nichts.'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Reload',
-        accelerator: 'CmdOrCtrl+R',
-        click(item, focusedWindow) {
-          if (focusedWindow) focusedWindow.reload()
-        }
-      },
-      {
-        label: 'Toggle Developer Tools',
-        accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
-        click(item, focusedWindow) {
-          if (focusedWindow) focusedWindow.webContents.toggleDevTools()
-        }
-      },
-      { type: 'separator' },
-      {
-        role: 'resetzoom'
-      },
-      {
-        role: 'zoomin'
-      },
-      {
-        role: 'zoomout'
-      },
-      { type: 'separator' },
-      {
-        role: 'togglefullscreen'
-      }
-    ]
-  }
-]
 
 function createWindow() {
   /**
@@ -86,8 +26,7 @@ function createWindow() {
     width: 1000
   })
 
-  let menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
+  MenuStrip.activate()
 
   mainWindow.loadURL(winURL)
 
