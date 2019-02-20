@@ -5,7 +5,7 @@ export default class ProjectManager {
 
   static openDirectory(dir, callback) {
     fs.readdir(dir, (err, items) => {
-      callback(err)
+      if (err) callback(err)
       for (let item of items) {
         let filePath = path.resolve(dir, item)
         let stats = fs.lstatSync(filePath)
