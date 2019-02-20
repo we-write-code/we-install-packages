@@ -40,5 +40,9 @@ module.exports = {
       classes: "always",
       switches: "never"
     }],
+    // allow white space on empty lines
+    'no-trailing-spaces': [1, {
+      skipBlankLines: true
+    }],
   }
 }
