@@ -7,7 +7,7 @@
 
 <script>
   export default {
-    name: 'we-install-packages'
+    name: 'App'
   }
 </script>
 

@@ -7,21 +7,25 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: require('@/components/MainLayout').default,
+      component: require('@/components/PackageExplorer').default,
       children: [
         {
-          path: '',
-          component: require('@/components/MainLayout/Home').default
+          path: 'home',
+          component: require('@/components/PackageExplorer/HomeTab').default
         },
         {
-          path: ':pm',
-          component: require('@/components/MainLayout/PackageViewer').default
+          path: 'global',
+          component: require('@/components/PackageExplorer/GlobalTab').default
+        },
+        {
+          path: 'project/:id',
+          component: require('@/components/PackageExplorer/ProjectTab').default
         }
       ]
     },
     {
       path: '*',
-      redirect: '/'
+      redirect: '/global'
     }
   ]
 })
