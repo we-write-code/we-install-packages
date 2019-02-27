@@ -62,8 +62,14 @@ export default class NpmManager extends PackageManager {
 
     if (!validity) throw new Error('Dependency file contains no valid JSON')
 
-    // TODO: Clarify if method should also return dev-dependencies
-    return PackageList.extractFromNpm(parsedData['dependencies'])
+    let packageLists = []
+
+    for (let key of Object.keys(parsedData)) {
+      let matchingType = new RegExp(/(^d|((dev|peer|optional)D))ependencies/, 'g').exec(key)
+      if (matchingType) packageLists.push(PackageList.extractFromNpm(parsedData[key], matchingType[3]))
+    }
+
+    return packageLists
   }
 
 }

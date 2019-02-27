@@ -3,8 +3,13 @@ import NpmManager from '../packageManagers/NpmManager'
 
 export default class PackageList extends Set {
 
-  static extractFromNpm(data) {
-    let packageList = new PackageList()
+  constructor(iterable, type = 'default') {
+    super()
+    this.type = type
+  }
+
+  static extractFromNpm(data, type = 'default') {
+    let packageList = new PackageList([], type)
 
     if (typeof data === 'string') {
       data = JSON.parse(data)
