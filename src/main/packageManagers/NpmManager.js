@@ -58,12 +58,12 @@ export default class NpmManager extends PackageManager {
     if (!fs.lstatSync(filePath).isFile()) throw new Error('Directory given, not file')
 
     let data = fs.readFileSync(filePath, 'utf8')
-    let [validity, jsonifiedData] = _validateDependencyFile(data)
+    let [validity, parsedData] = _validateDependencyFile(data)
 
     if (!validity) throw new Error('Dependency file contains no valid JSON')
 
     // TODO: Clarify if method should also return dev-dependencies
-    return PackageList.extractFromNpm(jsonifiedData['dependencies'])
+    return PackageList.extractFromNpm(parsedData['dependencies'])
   }
 
 }
