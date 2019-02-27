@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import PackageManager from './PackageManager'
+import PackageList from '../packages/PackageList'
 
 /**
  * Checks if the given content of a dependency file is valid
@@ -42,6 +43,27 @@ export default class NpmManager extends PackageManager {
     }
 
     return null
+  }
+
+  static decodeDependencyFile(filePath) {
+    if (typeof filePath !== 'string') throw new Error(`${filePath} is not a string`)
+
+    if (path.parse(filePath)['base'] !== 'package.json') {
+      throw new Error(
+        `File given is no correct dependency file (${path.parse(filePath)['base']} instead of 
+        'package.json')`
+      )
+    }
+
+    if (!fs.lstatSync(filePath).isFile()) throw new Error('Directory given, not file')
+
+    let data = fs.readFileSync(filePath, 'utf8')
+    let [validity, jsonifiedData] = _validateDependencyFile(data)
+
+    if (!validity) throw new Error('Dependency file contains no valid JSON')
+
+    // TODO: Clarify if method should also return dev-dependencies
+    return PackageList.extractFromNpm(jsonifiedData['dependencies'])
   }
 
 }
