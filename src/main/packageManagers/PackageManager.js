@@ -4,7 +4,7 @@ export default class PackageManager {
     throw new Error(`You must implement this (missing in class ${this.name})`)
   }
 
-  static decodeDependencyFile(filePath, dir) {
+  static decodeDependencyFile(filePath) {
     throw new Error(`You must implement this (missing in class ${this.name})`)
   }
 
