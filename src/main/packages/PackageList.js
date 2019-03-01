@@ -2,6 +2,18 @@ import Package from './Package'
 import NpmManager from '../packageManagers/NpmManager'
 import PipManager from '../packageManagers/PipManager'
 
+// Explanation of regex:
+/*
+(\w+-?)*\w+)            -> Package name (words connected with hyphens)
+\s*                     -> Optional whitespace between package name and version specifier
+(!=|~=|(>|<|==)=?)      -> Version specifier (!=, ~=, ==, ===, <, >, >=, <=)
+\s*                     -> Optional whitespace between version specifier and version number
+\d+[^#,\s]+             -> Version number (no validation, must not be directly followed by # or ,)
+(\s*,\s*(!=|~=|(>|<|==)=?)\s*\d+[^#,\s]+)* -> Additional versions separated by , and optional whitespace
+(\s+#.*)?$              -> Trailing comments (will be ignored)
+ */
+const _pipPackageRegex = /^((?:\w+-?)*\w+)(?:\s*((?:!=|~=|(?:>|<|==)=?)\s*\d+[^#,\s]+(?:\s*,\s*(?:!=|~=|(?:>|<|==)=?)\s*\d+[^#,\s]+)*))?(?:\s+#.*)?$/
+
 export default class PackageList extends Set {
 
   constructor(iterable, type = 'default') {
@@ -23,23 +35,18 @@ export default class PackageList extends Set {
     return packageList
   }
 
-  // TODO: Add extraction from referenced dependency files
   // TODO: Add extraction from setup.py or similar variants
+  // TODO: Missing support/handling for options, referenced dependency files, referenced constraint files and links/particular files
   static extractFromPip(data) {
     let packageList = new PackageList()
 
     for (let line of data) {
       let data = line.trim()
 
-      // Tentative solution
-      // Explanation of regex:
-      // ^((?:\w+-?)*\w+) -> Package name consisting of groups of characters and digits connected with a hyphen (-)
-      // \s? -> Optional space between package name and version specifier
-      // [!=~<>][=] -> Control characters for version specification
-      // \s? -> Optional space between control characters and version numbers
-      // [^#\s]+ -> Version number (literally: anything besides whitespace and # to ignore trailing comments)
-      let match = new RegExp(/^((?:\w+-?)*\w+)\s?([!=~<>][=]\s?[^#\s]+)?/, 'g').exec(data)
-      if (match) packageList.add(new Package(match[1], match[2], PipManager))
+      let [isPackage, name, version] = [data.match(_pipPackageRegex)].reduce((acc, val) => acc.concat(val), [])
+
+      if (isPackage) packageList.add(new Package(name, version, PipManager))
+
     }
 
     return packageList
