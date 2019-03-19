@@ -1,3 +1,5 @@
+import path from 'path'
+import fs from 'fs'
 import Package from './Package'
 import NpmManager from '../packageManagers/NpmManager'
 import PipManager from '../packageManagers/PipManager'
@@ -13,6 +15,11 @@ import PipManager from '../packageManagers/PipManager'
 (\s+#.*)?$              -> Trailing comments (will be ignored)
  */
 const _pipPackageRegex = /^((?:\w+-?)*\w+)(?:\s*((?:!=|~=|(?:>|<|==)=?)\s*\d+[^#,\s]+(?:\s*,\s*(?:!=|~=|(?:>|<|==)=?)\s*\d+[^#,\s]+)*))?(?:\s+#.*)?$/
+const _pipReferenceRegex = /-r\s+(\S+\.txt)/
+
+function _beautifyRegexResult(result) {
+  return [result].reduce((acc, val) => acc.concat(val), [])
+}
 
 export default class PackageList extends Set {
 
@@ -37,16 +44,30 @@ export default class PackageList extends Set {
 
   // TODO: Add extraction from setup.py or similar variants
   // TODO: Missing support/handling for options, referenced dependency files, referenced constraint files and links/particular files
-  static extractFromPip(data) {
-    let packageList = new PackageList()
+  static extractFromPip(data, filePath, visitedFiles = [], packageList = new PackageList()) {
+    visitedFiles.push(filePath)
 
     for (let line of data) {
       let data = line.trim()
 
-      let [isPackage, name, version] = [data.match(_pipPackageRegex)].reduce((acc, val) => acc.concat(val), [])
+      let [isReference, referencePath] = _beautifyRegexResult(data.match(_pipReferenceRegex))
+
+      // How much will symlinks fck me up?
+      if (isReference) {
+        referencePath = (path.isAbsolute(referencePath)) ? referencePath : path.join(path.dirname(filePath), referencePath)
+        if (fs.lstatSync(referencePath).isFile() && !visitedFiles.includes(referencePath)) {
+          let lines = fs.readFileSync(referencePath, 'utf8').toString().match(/^.+$/gm)
+          for (let pkg of this.extractFromPip(lines, referencePath, visitedFiles)) {
+            packageList.add(pkg)
+          }
+        }
+
+        continue
+      }
+
+      let [isPackage, name, version] = _beautifyRegexResult(data.match(_pipPackageRegex))
 
       if (isPackage) packageList.add(new Package(name, version, PipManager))
-
     }
 
     return packageList

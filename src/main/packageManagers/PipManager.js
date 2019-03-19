@@ -22,7 +22,7 @@ export default class PipManager extends PackageManager {
     if (stats.isFile()) {
       let lines = fs.readFileSync(filePath, 'utf8').toString().match(/^.+$/gm)
 
-      if (lines) return PackageList.extractFromPip(lines)
+      if (lines) return PackageList.extractFromPip(lines, filePath)
     }
   }
 
